@@ -15,5 +15,9 @@ namespace IoT
 
         public Collection Collection { get; set; }
         public int CollectionFK { get; set; }
+        public DateTime LastUpdateTime { get; set; }
+
+        public ApiKey LastUpdater { get; set; }
+        public int LastUpdaterFK { get; set; }
     }
 }

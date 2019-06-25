@@ -9,10 +9,25 @@ namespace IoT
     public class ItemService
     {
         private readonly IotDbContext dbContext;
+        private static DateTime lastRemove = DateTime.MinValue;
 
         public ItemService(IotDbContext dbContext)
         {
+
             this.dbContext = dbContext;
+
+            if (lastRemove < DateTime.Now.AddDays(-1))
+            {
+                RemoveOldEntries();
+                lastRemove = DateTime.Now;
+            }
+        }
+
+        private void RemoveOldEntries()
+        {
+            dbContext.RemoveRange(dbContext.Items.Where(x => x.LastUpdateTime < DateTime.Now.AddDays(-60)));
+            dbContext.RemoveRange(dbContext.Collections.Where(x => x.Items.Count <= 0));
+            dbContext.SaveChanges();
         }
 
         public string GetValue(string apiKey, string collection, string password, string key)
@@ -40,18 +55,25 @@ namespace IoT
             if (String.IsNullOrEmpty(password))
             {
                 Collection collection = dbContext.Collections.FirstOrDefault(x => x.Name == collectionName);
-                relevantItems = dbContext.Items.Where(x=>x.CollectionFK == collection.Id && x.IsPublic).ToList();
+                if (collection != null)
+                {
+                    relevantItems = dbContext.Items.Where(x => x.CollectionFK == collection.Id && x.IsPublic).ToList();
+                }
             }
             else
             {
                 Collection collection = dbContext.Collections.FirstOrDefault(x => x.Name == collectionName && x.Password == password);
-                relevantItems = dbContext.Items.Where(x => x.CollectionFK == collection.Id).ToList();
+                if (collection != null)
+                {
+                    relevantItems = dbContext.Items?.Where(x => x.CollectionFK == collection.Id)?.ToList();
+                }
+
 
             }
 
-            if (relevantItems == null || relevantItems.Count <=0)
+            if (relevantItems == null || relevantItems.Count <= 0)
             {
-                resultDictionary["ERROR"] = "COLLECTION NAME OR PASSWORD INVALID";
+                resultDictionary["ERROR"] = "COLLECTION INVALID";
                 return resultDictionary;
             }
 
@@ -70,7 +92,8 @@ namespace IoT
 
         public bool SetValues(string apiKey, string collectionName, string password, Dictionary<string, string> keyValues)
         {
-            if (!CheckApiKeyWrite(apiKey))
+            ApiKey UsedApiKey = CheckApiKeyWrite(apiKey);
+            if (UsedApiKey == null)
             {
                 return false;
             }
@@ -92,7 +115,9 @@ namespace IoT
                     {
                         IsPublic = false,
                         Key = keyValue.Key,
-                        Value = keyValue.Value
+                        Value = keyValue.Value,
+                        LastUpdateTime = DateTime.Now,
+                        LastUpdater = UsedApiKey
                     });
                 }
                 else
@@ -100,6 +125,8 @@ namespace IoT
                     dbContext.Items.Attach(currentItem);
                     currentItem.Value = keyValue.Value;
                     currentItem.IsPublic = false;
+                    currentItem.LastUpdateTime = DateTime.Now;
+                    currentItem.LastUpdater = UsedApiKey;
                 }
             }
 
@@ -111,7 +138,8 @@ namespace IoT
 
         public bool SetPublicValues(string apiKey, string collectionName, string password, Dictionary<string, string> keyValues)
         {
-            if (!CheckApiKeyWrite(apiKey))
+            ApiKey UsedApiKey = CheckApiKeyWrite(apiKey);
+            if (UsedApiKey == null)
             {
                 return false;
             }
@@ -132,13 +160,17 @@ namespace IoT
                         IsPublic = true,
                         Key = keyValue.Key,
                         Value = keyValue.Value,
-                        Collection = collection
+                        Collection = collection,
+                        LastUpdateTime = DateTime.Now,
+                        LastUpdater = UsedApiKey
                     });
                 }
                 else
                 {
                     currentItem.Value = keyValue.Value;
                     currentItem.IsPublic = true;
+                    currentItem.LastUpdateTime = DateTime.Now;
+                    currentItem.LastUpdater = UsedApiKey;
                 }
             }
 
@@ -150,11 +182,11 @@ namespace IoT
 
         private bool CheckApiKeyGet(string apiKey)
         {
-            return dbContext.ApiKeys.Any(x => x.Key == apiKey);
+            return dbContext.ApiKeys.Any(x => x.Key.Equals(apiKey, StringComparison.InvariantCulture));
         }
-        private bool CheckApiKeyWrite(string apiKey)
+        private ApiKey CheckApiKeyWrite(string apiKey)
         {
-            return dbContext.ApiKeys.Any(x => x.Key == apiKey && x.CanWrite);
+            return dbContext.ApiKeys.FirstOrDefault(x => x.Key == apiKey && x.CanWrite);
         }
 
     }

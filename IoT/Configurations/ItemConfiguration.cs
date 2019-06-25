@@ -17,6 +17,11 @@ namespace IoT.Configurations
                 .WithMany(p => p.Items)
                 .HasForeignKey(d => d.CollectionFK)
                 .HasConstraintName("FK_Collection_Item");
+
+            builder.HasOne(d => d.LastUpdater)
+                .WithMany(p => p.EditedItems)
+                .HasForeignKey(d => d.LastUpdaterFK)
+                .HasConstraintName("FK_ApiKey_Item");
         }
     }
 }
