@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29009.5
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoT", "IoT\IoT.csproj", "{D26CDAD1-CDE0-4F31-A244-6627E6F6CA53}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoT", "IoT\IoT.csproj", "{D26CDAD1-CDE0-4F31-A244-6627E6F6CA53}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{E73C1BD3-3897-44FB-A3B6-601C7910F832}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{D26CDAD1-CDE0-4F31-A244-6627E6F6CA53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D26CDAD1-CDE0-4F31-A244-6627E6F6CA53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D26CDAD1-CDE0-4F31-A244-6627E6F6CA53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E73C1BD3-3897-44FB-A3B6-601C7910F832}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E73C1BD3-3897-44FB-A3B6-601C7910F832}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E73C1BD3-3897-44FB-A3B6-601C7910F832}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E73C1BD3-3897-44FB-A3B6-601C7910F832}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
